@@ -1,0 +1,19 @@
+@servidor_HostAddress = https://localhost:7252
+
+GET {{servidor_HostAddress}}/weatherforecast/
+Accept: application/json
+###
+GET {{servidor_HostAddress}}/api/scoreboard
+###
+GET {{servidor_HostAddress}}/api/scoreboard/5
+###
+GET {{servidor_HostAddress}}/api/scoreboard/score/8230
+###
+POST {{servidor_HostAddress}}/api/scoreboard
+Content-Type: application/json
+
+{
+    "Pontos": 69,
+    "Jogador": "john"
+}
+###
