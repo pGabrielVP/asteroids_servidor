@@ -1,72 +1,42 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using servidor.Data;
 using servidor.dto;
-using servidor.Model;
 
 namespace servidor.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class ScoreBoardController : ControllerBase
+    public class ScoreBoardController(IScoreBoardDAO scoreboardDAO) : ControllerBase
     {
-        private static readonly IComparer<float> _scoreComparer = Comparer<float>.Create((x, y) => { var res = x.CompareTo(y); if (res == 0) { return -1; } else { return res * -1; } });
-        private static readonly SortedList<float, Score> _scores = new(_scoreComparer);
+        private readonly IScoreBoardDAO _scoreboardDAO = scoreboardDAO;
         
         [HttpGet]
-        public ActionResult<List<ScoreDTO>> getAll()
+        public ActionResult<List<ScoreDTO>> GetAll()
         {
-            return Ok(_scores.Values.Select<Score, ScoreDTO>((s, i) => {
-                var sDTO = new ScoreDTO
-                {
-                    Jogador = s.Jogador,
-                    Pontos = s.Pontos,
-                    Colocacao = i + 1
-                };
-                return sDTO;
-            }
-            ));
+            return Ok(_scoreboardDAO.GetAll());
         }
         [HttpGet("{n}")]
-        public ActionResult<List<ScoreDTO>> getTopN(int n)
+        public ActionResult<List<ScoreDTO>> GetTopN(int n)
         {
-            return Ok(_scores.Values.Take<Score>(n).Select<Score, ScoreDTO>((s, i) => {
-                var sDTO = new ScoreDTO
-                {
-                    Jogador = s.Jogador,
-                    Pontos = s.Pontos,
-                    Colocacao = i + 1
-                };
-                return sDTO; 
-            }
-            ));
+            return Ok(_scoreboardDAO.GetTopN(n));
         }
         [HttpGet("score/{id}")]
-        public ActionResult<ScoreDTO> getById(int id)
+        public ActionResult<ScoreDTO> GetById(string id)
         {
-            var score = _scores.Values.FirstOrDefault(s => s.id == id);
-            if ( score == null )
+            var scoreDTO = _scoreboardDAO.GetById(id);
+            if (scoreDTO == null)
                 return NotFound();
-            var scoreDTO = new ScoreDTO
-            {
-                Jogador = score.Jogador,
-                Pontos = score.Pontos,
-                Colocacao = _scores.Values.IndexOf(score) + 1
-            };
             return Ok(scoreDTO);
         }
         [HttpPost]
-        public ActionResult<ScoreDTO> submitScore(ScoreDTO scoreDTO)
+        public ActionResult<ScoreDTO> SubmitScore(ScoreDTO scoreDTO)
         {
             if (scoreDTO == null)
                 return BadRequest();
-            var score = new Score
-            {
-                id = new Random().Next(0, 10000),
-                Pontos = scoreDTO.Pontos,
-                Jogador = scoreDTO.Jogador
-            };
-            _scores.Add(score.Pontos, score);
-            scoreDTO.Colocacao = _scores.Values.IndexOf(score) + 1;
-            return CreatedAtAction(nameof(getById), new { id = score.id }, scoreDTO);
+            var tuple = _scoreboardDAO.Create(scoreDTO);
+            if (tuple == null)
+                return BadRequest();
+            return CreatedAtAction(nameof(GetById), new { id = tuple.Value.Id }, tuple.Value.ScoreDTO);
         }
     }
 }

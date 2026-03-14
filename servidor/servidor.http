@@ -7,7 +7,7 @@ GET {{servidor_HostAddress}}/api/scoreboard
 ###
 GET {{servidor_HostAddress}}/api/scoreboard/5
 ###
-GET {{servidor_HostAddress}}/api/scoreboard/score/8230
+GET {{servidor_HostAddress}}/api/scoreboard/score/aff245a6-3e99-4fea-b749-dd8568d25e54
 ###
 POST {{servidor_HostAddress}}/api/scoreboard
 Content-Type: application/json
