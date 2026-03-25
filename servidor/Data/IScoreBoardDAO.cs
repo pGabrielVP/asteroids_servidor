@@ -8,5 +8,6 @@ namespace servidor.Data
         List<ScoreDTO> GetTopN(int n);
         ScoreDTO? GetById(string Id);
         (string Id, ScoreDTO ScoreDTO)? Create(ScoreDTO scoreDTO);
+        List<ScoreDTO> PaginatedList(string idUltimoRegistro, int tamanhoPagina);
     }
 }
